@@ -11,7 +11,7 @@ quelle URL d'offre d'emploi via Claude.
 ### 1. Cloner / dézipper le projet
 
 ```bash
-cd job-tracker
+cd job-apply
 ```
 
 ### 2. Créer un environnement virtuel (recommandé)
@@ -40,7 +40,7 @@ cp .env.example .env
 
 ```env
 MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/?retryWrites=true&w=majority
-MONGODB_DB=job_tracker
+MONGODB_DB=job_apply
 ANTHROPIC_API_KEY=sk-ant-...
 # ou
 # GROQ_API_KEY=gsk_...
@@ -100,7 +100,7 @@ Dans l'onglet `Advanced settings` ou `Secrets`, ajoute :
 
 ```toml
 MONGODB_URI = "mongodb+srv://<user>:<password>@<cluster>.mongodb.net/?retryWrites=true&w=majority"
-MONGODB_DB = "job_tracker"
+MONGODB_DB = "job_apply"
 ANTHROPIC_API_KEY = "sk-ant-..."
 # ou
 # GROQ_API_KEY = "gsk_..."
@@ -129,7 +129,7 @@ L'application lit maintenant les secrets depuis `st.secrets` en production, et d
 ## 🗂️ Structure du projet
 
 ```
-job-tracker/
+job-apply/
 ├── app.py                  # Point d'entrée Streamlit
 ├── requirements.txt
 ├── .env                    # Variables d'environnement (ne pas committer !)
