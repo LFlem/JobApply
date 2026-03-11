@@ -1,5 +1,5 @@
 streamlit==1.41.1
-pymongo==4.10.1
+pymongo>=4.10,<5
 anthropic==0.42.0
 groq==0.18.0
 requests==2.32.3
