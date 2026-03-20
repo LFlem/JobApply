@@ -29,6 +29,9 @@ def _save_payload(payload: dict) -> None:
         doc_id = add_candidature(payload, current_user["id"])
         st.success(f"Candidature enregistree (ID : `{doc_id}`).")
         st.balloons()
+        # Rafraichir l'interface pour mettre a jour le dashboard
+        st.sleep(1)
+        st.rerun()
     except Exception as e:
         st.error(f"Erreur MongoDB : {e}")
 

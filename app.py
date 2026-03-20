@@ -2,11 +2,15 @@ import streamlit as st
 
 from utils.auth import (
     authenticate_user,
+    check_session_timeout,
     get_current_user,
     is_authenticated,
     login_user,
     logout_user,
     register_user,
+    restore_session_from_cookie,
+    save_session_to_cookie,
+    update_last_activity,
     validate_registration,
 )
 
@@ -285,6 +289,7 @@ def render_authentication() -> None:
             success, message, user = authenticate_user(email, password)
             if success and user:
                 login_user(user)
+                save_session_to_cookie(user["id"])
                 st.success(message)
                 st.rerun()
             else:
@@ -306,6 +311,7 @@ def render_authentication() -> None:
                 success, message, user = register_user(display_name, email, password)
                 if success and user:
                     login_user(user)
+                    save_session_to_cookie(user["id"])
                     st.success(message)
                     st.rerun()
                 else:
@@ -319,6 +325,18 @@ st.set_page_config(
 )
 
 st.session_state.setdefault("theme_mode", "Clair")
+
+# Restaurer la session depuis le cookie si elle existe
+if not is_authenticated():
+    restore_session_from_cookie()
+
+# Vérifier l'inactivité et déconnecter si timeout
+if is_authenticated():
+    if not check_session_timeout(timeout_minutes=30):
+        st.warning("Votre session a expire apres 30 minutes d'inactivite. Reconnectez-vous s'il vous plait.")
+        st.rerun()
+    # Mettre à jour le timestamp d'activité à chaque chargement
+    update_last_activity()
 
 top_right_spacer, top_right_theme = st.columns([6, 1.4])
 with top_right_theme:

@@ -2,9 +2,10 @@ import hashlib
 import hmac
 import re
 import secrets
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 import streamlit as st
+from bson import ObjectId
 from pymongo.errors import DuplicateKeyError
 
 from utils.db import get_collection
@@ -108,7 +109,82 @@ def is_authenticated() -> bool:
 
 def login_user(user: dict) -> None:
     st.session_state["auth_user"] = user
+    st.session_state["auth_user_id"] = user["id"]
+    # Initialiser le timestamp d'activité pour détection d'inactivité
+    st.session_state["auth_last_activity"] = datetime.now(timezone.utc)
 
 
 def logout_user() -> None:
     st.session_state.pop("auth_user", None)
+    st.session_state.pop("auth_user_id", None)
+    st.session_state.pop("auth_last_activity", None)
+
+
+def update_last_activity() -> None:
+    """Met à jour le timestamp de la dernière activité."""
+    if is_authenticated():
+        st.session_state["auth_last_activity"] = datetime.now(timezone.utc)
+
+
+def check_session_timeout(timeout_minutes: int = 30) -> bool:
+    """
+    Vérifie si la session a expiré due à l'inactivité.
+    Retourne True si la session est toujours valide, False si elle a expiré.
+    """
+    if not is_authenticated():
+        return True  # Pas de session, donc pas besoin de vérifier
+    
+    last_activity = st.session_state.get("auth_last_activity")
+    if not last_activity:
+        return True  # Pas de timestamp, laisser passer
+    
+    time_elapsed = datetime.now(timezone.utc) - last_activity
+    timeout = timedelta(minutes=timeout_minutes)
+    
+    if time_elapsed > timeout:
+        # Session expirée
+        logout_user()
+        try:
+            from streamlit_cookies_manager import CookieManager
+            cookies = CookieManager()
+            cookies.delete("auth_user_id")
+        except Exception:
+            pass
+        return False  # Session expiree
+    
+    return True  # Session toujours valide
+
+
+def restore_session_from_cookie() -> bool:
+    """Restaure la session utilisateur depuis le cookie."""
+    try:
+        from streamlit_cookies_manager import CookieManager
+        cookies = CookieManager()
+        
+        user_id = cookies.get("auth_user_id", "")
+        if not user_id:
+            return False
+            
+        # Récupérer l'utilisateur depuis la BD
+        col = _users_collection()
+        user = col.find_one({"_id": ObjectId(user_id)})
+        
+        if user:
+            login_user(_serialize_user(user))
+            return True
+        else:
+            # Le cookie est expiré ou invalide
+            cookies.delete("auth_user_id")
+            return False
+    except Exception:
+        return False
+
+
+def save_session_to_cookie(user_id: str) -> None:
+    """Sauvegarde l'ID utilisateur dans un cookie."""
+    try:
+        from streamlit_cookies_manager import CookieManager
+        cookies = CookieManager()
+        cookies["auth_user_id"] = user_id
+    except Exception:
+        pass

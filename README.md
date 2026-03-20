@@ -1,169 +1,248 @@
-# 💼 JobApply — Suivi de candidatures avec Claude AI
+# 💼 JobApply — Suivi de candidatures intelligent
 
-Application Streamlit pour suivre tes candidatures, avec comptes utilisateurs,
-connexion securisee, et extraction automatique des infos depuis n'importe
-quelle URL d'offre d'emploi via Claude.
+**Simplifiez votre recherche d'emploi avec l'extraction automatique d'offres et un suivi centralisé de vos candidatures.**
 
----
-
-## ⚡ Installation rapide
-
-### 1. Cloner / dézipper le projet
-
-```bash
-cd job-apply
-```
-
-### 2. Créer un environnement virtuel (recommandé)
-
-```bash
-python -m venv venv
-source venv/bin/activate      # macOS/Linux
-venv\Scripts\activate         # Windows
-```
-
-### 3. Installer les dépendances
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Configurer les variables d'environnement
-
-Copie `.env.example` en `.env` et remplis MongoDB + une cle IA :
-
-```bash
-cp .env.example .env
-```
-
-Édite `.env` :
-
-```env
-MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/?retryWrites=true&w=majority
-MONGODB_DB=job_apply
-ANTHROPIC_API_KEY=sk-ant-...
-# ou
-# GROQ_API_KEY=gsk_...
-```
-
-#### 🔑 Obtenir les clés
-
-**MongoDB Atlas (gratuit) :**
-1. Va sur [mongodb.com/atlas](https://www.mongodb.com/atlas)
-2. Crée un compte → New Project → Build a Database (Free tier M0)
-3. Crée un user + mot de passe
-4. Autorise ton IP (Network Access → Add IP)
-5. Copie la connection string (Connect → Drivers → Python)
-
-**Anthropic API :**
-1. Va sur [console.anthropic.com](https://console.anthropic.com)
-2. API Keys → Create Key
-3. Copie la clé dans `.env`
-
-**Groq API :**
-1. Va sur [console.groq.com](https://console.groq.com)
-2. Crée une API key
-3. Copie la clé dans `.env` sous `GROQ_API_KEY`
-
-### 5. Lancer l'application
-
-```bash
-streamlit run app.py
-```
-
-Ouvre [http://localhost:8501](http://localhost:8501) 🚀
+JobApply est une plateforme moderne de gestion de candidatures qui sauve du temps en automatisant l'extraction des informations des offres d'emploi. Au lieu de recopier manuellement les détails d'une annonce, importez simplement l'URL et laissez l'IA faire le travail.
 
 ---
 
-## ☁️ Déploiement sur Streamlit Community Cloud
+## 🎯 Pourquoi JobApply ?
 
-Le projet est maintenant prêt pour Streamlit Cloud : `requirements.txt` est présent, l'entrée de l'application est [app.py](app.py), et les secrets peuvent être lus depuis `st.secrets`.
+### 📊 Suivi organisé
+- Centralisez toutes vos candidatures en un seul endroit
+- Visualisez votre pipeline avec un tableau de bord intuitif
+- Suivez les statuts : À postuler → Postulé → Entretien → Accepté/Refusé
 
-### 1. Pousser le projet sur GitHub
+### ⚡ Extraction automatique
+- Collez simplement l'URL d'une offre d'emploi
+- Claude AI analyse automatiquement la page et extrait :
+  - Titre du poste
+  - Entreprise
+  - Localisation
+  - Type de contrat
+  - Salaire
+  - Compétences requises
+  - Avantages
 
-- Crée un dépôt GitHub pour le projet
-- Pousse le code source sans le fichier `.env`
-- Vérifie que [ .gitignore ] contient bien `.env`, `venv/` et `.streamlit/secrets.toml`
-- Tu peux t'appuyer sur [ .streamlit/secrets.toml.example ](.streamlit/secrets.toml.example) pour remplir les secrets côté Streamlit
+### 🔒 Sécurité et confidentialité
+- Authentification sécurisée par compte utilisateur
+- Chaque utilisateur accède uniquement à ses propres candidatures
+- Données hébergées en base de données privée
+- Session avec timeout automatique après inactivité
 
-### 2. Créer l'application sur Streamlit
-
-1. Va sur [share.streamlit.io](https://share.streamlit.io)
-2. Connecte ton compte GitHub
-3. Choisis le repo, la branche et le fichier principal `app.py`
-4. Lance le déploiement
-5. Si Streamlit demande un fichier de config, [ .streamlit/config.toml ](.streamlit/config.toml) est déjà prêt
-
-### 3. Ajouter les secrets dans Streamlit Cloud
-
-Dans l'onglet `Advanced settings` ou `Secrets`, ajoute :
-
-```toml
-MONGODB_URI = "mongodb+srv://<user>:<password>@<cluster>.mongodb.net/?retryWrites=true&w=majority"
-MONGODB_DB = "job_apply"
-ANTHROPIC_API_KEY = "sk-ant-..."
-# ou
-# GROQ_API_KEY = "gsk_..."
-```
-
-L'application lit maintenant les secrets depuis `st.secrets` en production, et depuis `.env` en local.
-
-### 3 bis. Checklist avant de cliquer sur Deploy
-
-1. Vérifier que `.env` n'est pas versionné
-2. Vérifier que MongoDB Atlas accepte les connexions de Streamlit Cloud
-3. Vérifier qu'au moins une clé IA est fournie : `ANTHROPIC_API_KEY` ou `GROQ_API_KEY`
-4. Vérifier que le fichier principal sélectionné est bien `app.py`
-5. Vérifier que les secrets sont collés dans Streamlit et pas dans le dépôt GitHub
-
-### 4. Points d'attention MongoDB Atlas
-
-- Crée un utilisateur MongoDB dédié au projet
-- Utilise un mot de passe fort pour la base
-- N'utilise pas le compte admin Atlas dans l'app
-- Si possible, limite les droits au strict minimum sur la base utilisée
-- Vérifie les règles `Network Access` d'Atlas avant mise en prod
+### 🎨 Interface intuitive
+- Design moderne avec thème clair/sombre
+- Navigation fluide et épurée
+- Statistiques en temps réel
 
 ---
 
-## 🗂️ Structure du projet
+## ✨ Fonctionnalités principales
 
-```
-job-apply/
-├── app.py                  # Point d'entrée Streamlit
-├── requirements.txt
-├── .env                    # Variables d'environnement (ne pas committer !)
-├── .env.example
-├── views/
-│   ├── dashboard.py        # Tableau de bord + stats
-│   ├── add_job.py          # Ajout d'offre (scraping + Claude)
-│   └── list_jobs.py        # Liste, modification, suppression
-└── utils/
-    ├── auth.py             # Connexion, inscription, session
-    ├── db.py               # Connexion MongoDB
-    ├── scraper.py          # Scraping URL
-    ├── extractor.py        # Extraction via Claude API
-    └── jobs.py             # CRUD candidatures
-```
+### 1. Tableau de bord
+- Vue d'ensemble de votre recherche d'emploi
+- Statistiques clés : total de candidatures, répartition par statut
+- Pipeline visuel avec barres de progression
+- Dernières candidatures en aperçu
 
----
+### 2. Ajouter une offre
+- **Mode automatique** : collez une URL, l'IA extrait tout
+- **Mode manuel** : saisissez les informations manuellement
+- Support multi-jobboards : LinkedIn, Welcome to the Jungle, Indeed, etc.
 
-## 🔄 Flux d'utilisation
+### 3. Gestion des candidatures
+- Liste complète de toutes vos candidatures
+- Filtrage et tri avancés
+- Modification des statuts en un clic
+- Notes personnelles pour chaque candidature
+- Suppression sécurisée
 
-1. **Creer un compte** ou **se connecter**
-2. **Ajouter une offre** : colle l'URL d'un poste (LinkedIn, WTTJ, Indeed…)
-3. **L'IA analyse** : scrape la page + extrait les infos automatiquement
-4. **Verifier** : modifie si besoin dans le formulaire pre-rempli
-5. **Sauvegarder** : chaque candidature est associee au compte connecte
-6. **Suivre** : change le statut au fil du temps (A postuler → Postule → Entretien → Accepte/Refuse)
+### 4. Système de comptes
+- Inscription simple
+- Connexion sécurisée
+- Persistence de session (restez connecté même après rechargement)
+- Déconnexion automatique après 30 minutes d'inactivité
 
 ---
 
-## 📌 Notes
+## 📈 Cas d'usage
 
-- Le scraping fonctionne sur la plupart des jobboards publics (WTTJ, Indeed, LinkedIn public, etc.)
-- Certains sites avec protection anti-bot (Cloudflare) peuvent bloquer le scraping
-- Toutes les données restent dans **ta** base MongoDB Atlas
+**Pour les candidats actifs en recherche d'emploi :**
+- Gérer efficacement plusieurs candidatures simultanément
+- Ne rien oublier et suivre le statut de chaque application
+- Gagner du temps sur la saisie manuelle des informations
+
+**Pour les professionnels en transition de carrière :**
+- Suivre systématiquement toutes ses démarches
+- Analyser des tendances (salaires, technologies demandées)
+- Maintenir une base de données structurée
+
+---
+
+## 🔧 Architecture technique
+
+JobApply est construite avec :
+- **Frontend** : Streamlit (interface web interactive)
+- **Backend** : Python
+- **Base de données** : MongoDB (stockage sécurisé)
+- **IA** : Claude (extraction intelligente des données)
+- **Authentication** : Système de cookies sécurisés
+
+---
+
+## 🚀 Démarrer avec JobApply
+
+Voir la documentation d'installation dans la section documentation pour mettre en place votre instance.
+
+---
+
+## 💪 Performance et scalabilité
+
+- Extraction IA instantanée de la plupart des offres d'emploi
+- Interface responsive optimisée pour mobile et desktop
+- Gestion multi-utilisateurs avec isolation des données
+- Session persistante avec persistance de cookie
+
+---
+
+## 🔐 Sécurité en priorité
+
+✅ Authentification utilisateur sécurisée  
+✅ Données privées et isolées par utilisateur  
+✅ Timeout de session contre les accès non autorisés  
+✅ Hash sécurisé des mots de passe (PBKDF2)  
+✅ Suppression du cookie de session après déconnexion  
+
+---
+
+## 📋 Feuille de route
+
+- ✅ Extraction automatique d'offres
+- ✅ Gestion multi-utilisateurs
+- ✅ Pipeline de candidatures
+- 🔄 Intégrations jobboards additionnelles
+- 🔄 Export de données (CSV/PDF)
+- 🔄 Recommandations IA basées sur le profil
+- 🔄 Notifications et reminders
+
+---
+
+**JobApply : Parce que trouver un emploi devrait être moins fastidieux.**
+
+2. **Pro**
+    - Quota de scraping plus élevé (ex: 200/jour) ou "illimité raisonnable"
+    - Suppression des publicités
+    - Priorité de traitement et options avancées (export, analytics, etc.)
+
+### Pourquoi ce modèle fonctionne ici
+
+- Le scraping a un coût infra/API (requêtes HTTP + extraction IA)
+- Le quota protège techniquement ton service
+- La pub finance les utilisateurs gratuits
+- Le plan Pro crée une montée en gamme naturelle
+
+---
+
+## 🧩 Comment l'implémenter dans ce projet
+
+Ci-dessous, un plan concret aligné avec la structure actuelle (`utils/`, `views/`, MongoDB).
+
+### 1) Étendre le profil utilisateur
+
+Dans la collection `users`, ajouter des champs de plan et quota:
+
+- `plan`: `free` ou `pro`
+- `scrape_limit_daily`: nombre max/jour (ex: 10 pour free, 200 pour pro)
+- `scrape_used_daily`: compteur de consommation du jour
+- `scrape_day`: date du compteur (ex: `2026-03-18`)
+- `ads_enabled`: booléen (true pour free, false pour pro)
+
+Point d'entrée conseillé: logique d'inscription dans `utils/auth.py`.
+
+### 2) Créer un service de quota
+
+Créer un module dédié, par exemple `utils/quota.py`, avec:
+
+- `reset_if_new_day(user_id)`
+- `can_scrape(user_id) -> (bool, remaining, message)`
+- `consume_scrape(user_id) -> (bool, remaining)`
+
+Règle de base:
+
+1. Si `scrape_day != aujourd'hui`, remettre `scrape_used_daily = 0` et `scrape_day = aujourd'hui`.
+2. Autoriser le scraping seulement si `scrape_used_daily < scrape_limit_daily`.
+3. Incrémenter le compteur uniquement si le scraping démarre.
+
+### 3) Bloquer avant l'appel scraping
+
+Dans `views/add_job.py`, au clic sur "Scraper et analyser":
+
+1. Récupérer l'utilisateur courant
+2. Vérifier le quota via `can_scrape`
+3. Si refus: afficher message + CTA "Passer Pro"
+4. Si autorisé: appeler `consume_scrape` puis lancer `scrape_job_url(...)`
+
+Important: le quota doit être vérifié **côté backend**, pas uniquement via l'UI.
+
+### 4) Afficher les pubs uniquement pour les comptes free
+
+Dans les vues Streamlit (dashboard, liste, ajout):
+
+- Si `ads_enabled = true`: afficher un bloc sponsorisé (bannière interne, lien affilié, promo partenaire)
+- Si `ads_enabled = false`: ne rien afficher
+
+En pratique sur Streamlit, les formats les plus simples sont:
+
+- Encarts sponsorisés internes
+- Liens affiliés contextualisés
+- Promotion de ton propre plan Pro
+
+### 5) Ajouter une page "Plans & Facturation"
+
+Ajouter une vue dédiée (ex: `views/billing.py`) avec:
+
+- Quota actuel (utilisé / limite)
+- Bénéfices du plan Pro
+- Bouton d'upgrade (Stripe Checkout recommandé)
+
+Après paiement validé (webhook Stripe):
+
+- mettre `plan = pro`
+- augmenter `scrape_limit_daily`
+- mettre `ads_enabled = false`
+
+### 6) Sécuriser et tracer
+
+- Ajouter des logs d'usage (`user_id`, date, succès/échec scraping)
+- Ajouter un rate-limit anti-abus (IP + user)
+- Prévoir un plafond anti-fraude même pour Pro (fair use)
+
+### 7) Respect légal
+
+- Respecter les CGU des sites scrapés
+- Ajouter une politique de confidentialité
+- Si pub/cookies traçants: gérer consentement RGPD
+
+---
+
+## 🚀 Plan d'exécution (rapide)
+
+1. **Jour 1**: schéma user + service de quota (`utils/quota.py`)
+2. **Jour 2**: intégration blocage quota dans `views/add_job.py`
+3. **Jour 3**: UI quota + page Plans
+4. **Jour 4**: Stripe checkout + webhook upgrade Pro
+5. **Jour 5**: instrumentation, messages UX, tests manuels
+
+---
+
+## ✅ Résultat attendu
+
+Après implémentation:
+
+- Les utilisateurs gratuits voient des pubs + une limite de scraping/jour
+- Les utilisateurs Pro n'ont pas de pub + un quota plus large
+- Ton coût de scraping est maîtrisé
+- Tu as un chemin de revenus progressif et clair
 
 ---
 
